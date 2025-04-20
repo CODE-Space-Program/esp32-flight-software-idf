@@ -1,0 +1,9 @@
+name: esp32-flight-software-v2
+version: "1.0.0"
+
+idf:
+  version: ">=5.0"
+
+dependencies:
+  eil/i2cdev: "*"
+  supcik/pca9685: "*"

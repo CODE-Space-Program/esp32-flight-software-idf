@@ -10,8 +10,8 @@ static const char* TAG = "wifi";
 static EventGroupHandle_t wifi_event_group;
 static const int CONNECTED_BIT  = BIT0;
 
-#define WIFI_SSID "your_ssid"
-#define WIFI_PASS "your_password"
+#define WIFI_SSID "CODE University"
+#define WIFI_PASS "CODE!University"
 
 // Event handler to catch start, disconnect & got‑IP events
 static void wifi_event_handler(void* arg,

@@ -1,0 +1,12 @@
+dependencies:
+  idf: '>=5.3'
+description: PCA9685 PWM component for ESP-IDF
+license: MIT
+maintainers:
+- Jacques Supcik <jacques@supcik.net>
+repository: git://github.com/supcik/idf-pca9685.git
+repository_info:
+  commit_sha: 7a6b63fdbf93a1a09d1190a172dace68a1ebc028
+  path: pca9685
+url: https://github.com/supcik/idf-pca9685/tree/main/pca9685
+version: 1.0.0
