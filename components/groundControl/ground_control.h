@@ -14,7 +14,7 @@
 #include "esp_event.h"         // event loop (required by the client)
 #include "esp_netif.h"         // network interface
 
-struct Data
+struct TelemetryData
 {
     std::string state = "Ready";
 
@@ -49,7 +49,7 @@ public:
 
     void subscribe(Listener listener);
     void connect();
-    void sendTelemetry(const Data &data);
+    void sendTelemetry(const TelemetryData &data);
 
     bool isConnecting = false;
     bool isConnected = false;

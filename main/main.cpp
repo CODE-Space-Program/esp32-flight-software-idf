@@ -9,20 +9,55 @@
 
 static const char* TAG = "app_main";
 
-static int lastTime = 0;
+static int tvcTestTick = 0;
+
+static TelemetryData mockTelemetry {
+    "Ready",      // state
+    12345678L,        // time (ms)
+    1013.25f,         // pressure (mbar)
+    22.5f,            // temperature (°C)
+    150.0f,           // raw_altitude
+    145.0f,           // estimated_altitude
+    5.0f,             // velocity
+    2.5f,             // estimated_pitch
+    -1.0f,            // estimated_yaw
+    0.0f,             // estimated_roll
+    160.0f,           // apogee
+    '\0',             // null_terminator (uses default anyway)
+    90.0f,            // nominalYawServoDegrees
+    45.0f,            // nominalPitchServoDegrees
+    false             // servosLocked
+};
 
 extern "C" void app_main()
 {
+
+    ESP_LOGI(TAG, "Starting main application");
+
     connectWifi();
+
+    ESP_LOGI(TAG, "Connected to WiFi");
 
     nvs_flash_init();
     esp_netif_init();
     esp_event_loop_create_default();
 
+    ESP_LOGI(TAG, "Initialized event loop");
+
     GroundControl gc("https://spaceprogram.bolls.dev");
     TvcTest tvcTest;
 
+    gc.connect();
+
+    gc.sendTelemetry(mockTelemetry);
+
+    ESP_LOGI(TAG, "Sent telemetry");
+
     Servos servos((i2c_port_t) 0, (gpio_num_t) 0, (gpio_num_t) 0, 0, 110, 480);
+
+    servos.initialize();
+
+    ESP_LOGI(TAG, "Initialized servos");
 
     gc.subscribe([&](const std::string &cmd, cJSON *args) {
         if (args) {
@@ -71,12 +106,14 @@ extern "C" void app_main()
             ESP_LOGI(TAG, "Unhandled command: %s", cmd.c_str());
         }
     });
-    gc.connect();
 
     while (true) {
         if (tvcTest.isInProgress()) {
-            lastTime++;
-            if (lastTime % 100 == 0) {
+            ESP_LOGI(TAG, "Tvc test in progress");
+
+            tvcTestTick++;
+
+            if (tvcTestTick % 100 == 0) {
                 float newPitch = tvcTest.getNewPitch();
                 float newYaw   = tvcTest.getNewYaw();
                 servos.move(0, newPitch);

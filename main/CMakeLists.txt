@@ -1,6 +1,5 @@
 idf_component_register(
   SRCS
-    "esp32-flight-software-v2.c"
     "main.cpp"
     "wifi_helper.cpp"
     "tvc_test.cpp"
