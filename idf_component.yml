@@ -1,0 +1,4 @@
+dependencies:
+  idf: ">=5.0"
+  espressif/esp-mqtt: "^2.0.0"
+  espressif/mdns: "*"

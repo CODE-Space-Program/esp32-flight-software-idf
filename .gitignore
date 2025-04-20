@@ -1,0 +1,44 @@
+# ESP-IDF build output
+/build/
+
+# Build binaries and intermediate files
+*.elf
+*.bin
+*.hex
+*.map
+
+# CMake generated files
+CMakeLists.txt.user
+compile_commands.json
+cmake_install.cmake
+
+# SDK configuration
+sdkconfig
+sdkconfig.old
+sdkconfig.*.backup
+
+# Partition tables
+partitions.bin
+partitions.csv
+
+# Flash logs
+idf_*.log
+
+# Python virtual environments and caches
+venv/
+.env/
+.venv/
+__pycache__/
+
+# Editor and IDE settings
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+
+# General logs
+*.log
+
+# Wi-Fi config (if used)
+wifi_config.json
