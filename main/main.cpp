@@ -7,6 +7,31 @@
 #include "tvc_test.h"
 #include "servos.h"
 
+#include "driver/gpio.h"
+
+static constexpr gpio_num_t LED_GPIO = GPIO_NUM_2;
+
+void init_led() {
+    gpio_config_t io_conf = {};
+    io_conf.intr_type    = GPIO_INTR_DISABLE;
+    io_conf.mode         = GPIO_MODE_OUTPUT;
+    io_conf.pin_bit_mask = (1ULL << LED_GPIO);
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    io_conf.pull_up_en   = GPIO_PULLUP_DISABLE;
+    gpio_config(&io_conf);
+
+    gpio_set_level(LED_GPIO, 0);
+}
+
+void led_on()  { gpio_set_level(LED_GPIO, 1); }
+
+void led_off() { gpio_set_level(LED_GPIO, 0); }
+
+void led_toggle() {
+    int level = gpio_get_level(LED_GPIO);
+    gpio_set_level(LED_GPIO, !level);
+}
+
 static const char* TAG = "app_main";
 
 static int tvcTestTick = 0;
@@ -32,11 +57,16 @@ static TelemetryData mockTelemetry {
 extern "C" void app_main()
 {
 
+    init_led();
+    led_on();
+
     ESP_LOGI(TAG, "Starting main application");
 
     connectWifi();
 
     ESP_LOGI(TAG, "Connected to WiFi");
+
+    led_off();
 
     nvs_flash_init();
     esp_netif_init();
