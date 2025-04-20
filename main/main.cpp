@@ -9,6 +9,8 @@
 
 static const char* TAG = "app_main";
 
+static int lastTime = 0;
+
 extern "C" void app_main()
 {
     connectWifi();
@@ -59,6 +61,12 @@ extern "C" void app_main()
 
             tvcTest.start(maxDegrees, stepDegrees, duration);
         }
+        else if (cmd == "zero_tvc"){
+            ESP_LOGI(TAG, "Received zero_tvc command");
+
+            servos.move(0, 90);
+            servos.move(1, 90);
+        }
         else {
             ESP_LOGI(TAG, "Unhandled command: %s", cmd.c_str());
         }
@@ -66,6 +74,19 @@ extern "C" void app_main()
     gc.connect();
 
     while (true) {
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        if (tvcTest.isInProgress()) {
+            lastTime++;
+            if (lastTime % 100 == 0) {
+                float newPitch = tvcTest.getNewPitch();
+                float newYaw   = tvcTest.getNewYaw();
+                servos.move(0, newPitch);
+                servos.move(1, newYaw);
+            }
+            // 1ms delay to simulate Arduino's fast loop rate
+            vTaskDelay(pdMS_TO_TICKS(1));
+            continue;
+        }
+        // not in progress: you could lower CPU use here
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
