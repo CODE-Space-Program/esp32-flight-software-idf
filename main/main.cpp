@@ -57,6 +57,8 @@ static TelemetryData mockTelemetry {
     false             // servosLocked
 };
 
+static i2c_master_bus_handle_t bus = nullptr;
+
 extern "C" void app_main()
 {
 
@@ -86,8 +88,16 @@ extern "C" void app_main()
     GroundControl gc("https://spaceprogram.bolls.dev");
     TvcTest tvcTest;
 
+    i2c_master_bus_config_t bus_cfg = {
+        .i2c_port = (i2c_port_t) 0,
+        .sda_io_num = (gpio_num_t) 21,
+        .scl_io_num = (gpio_num_t) 22,
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+    };
+    ESP_ERROR_CHECK( i2c_new_master_bus(&bus_cfg, &bus) );
+
     SensorManager sensorManager;
-    sensorManager.init((i2c_port_t) 0, (gpio_num_t) 21, (gpio_num_t) 22);
+    sensorManager.init(bus);
     sensorManager.read(mockTelemetry);
 
     gc.connect();
@@ -96,7 +106,7 @@ extern "C" void app_main()
 
     ESP_LOGI(TAG, "Sent telemetry");
 
-    Servos servos((i2c_port_t) 0, (gpio_num_t) 21, (gpio_num_t) 22, 0x40, 110, 480);
+    Servos servos(bus, 0x40, 110, 480);
 
     servos.initialize();
 

@@ -1,5 +1,5 @@
 name: esp32-flight-software-v2
-version: "1.0.0"
+version: 1.0.0
 
 idf:
   version: ">=5.0"
@@ -7,5 +7,5 @@ idf:
 dependencies:
   eil/i2cdev: "*"
   supcik/pca9685: "*"
-  espressif/mpu6050: "*"
   k0i05/esp_bmp390: "*"
+  k0i05/esp_mpu6050: ^1.2.1

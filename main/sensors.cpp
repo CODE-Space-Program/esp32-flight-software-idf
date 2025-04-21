@@ -3,74 +3,87 @@
 #include "mpu6050.h"
 #include <esp_log.h>
 #include <cmath>
+#include "driver/i2c_master.h"  
 
 static const char *TAG = "SensorManager";
-static constexpr float SEA_LEVEL_P       = 1012.17f;
-static constexpr float SEA_LEVEL_PRESSURE = SEA_LEVEL_P * 100.0f; // Pa
+static constexpr float SEA_LEVEL_P        = 1012.17f;
+static constexpr float SEA_LEVEL_PRESSURE = SEA_LEVEL_P * 100.0f;
 
-mpu6050_handle_t mpu_handle = nullptr;
-bmp390_handle_t bmp_handle = nullptr;
+static mpu6050_handle_t mpu_handle = nullptr;
+static bmp390_handle_t bmp_handle = nullptr;
 
-esp_err_t SensorManager::init(i2c_port_t i2c_num,
-                              gpio_num_t sda_pin,
-                              gpio_num_t scl_pin)
-{
-    // 1) install the low‑level I2C driver
-    i2c_config_t conf{};
-    conf.mode           = I2C_MODE_MASTER;
-    conf.sda_io_num     = sda_pin;
-    conf.scl_io_num     = scl_pin;
-    conf.master.clk_speed = 100000;
-    ESP_ERROR_CHECK(i2c_param_config(i2c_num, &conf));
-    ESP_ERROR_CHECK(i2c_driver_install(i2c_num, conf.mode, 0, 0, 0));
+esp_err_t SensorManager::init(i2c_master_bus_handle_t bus) {
+    // 1) new master bus
+    
 
-    // 2) BMP390 init (same as before) …
-    //    (omit here for brevity)
+    // 2) BMP390 stays the same
+    bmp390_config_t bmp_cfg = {
+        // I2C_BMP390_DEV_ADDR_HI,
+        0x76,
+        I2C_BMP390_DEV_CLK_SPD,
+        BMP390_IIR_FILTER_OFF,
+        BMP390_PRESSURE_OVERSAMPLING_8X,
+        BMP390_TEMPERATURE_OVERSAMPLING_8X,
+        BMP390_ODR_40MS,
+        BMP390_POWER_MODE_FORCED
+    };
+    ESP_ERROR_CHECK( bmp390_init(bus, &bmp_cfg, &bmp_handle) );
 
-    // 3) MPU6050 init
-    mpu_handle = mpu6050_create(i2c_num, MPU6050_I2C_ADDRESS);
-    if (mpu_handle == nullptr) {
-        ESP_LOGE(TAG, "MPU6050 create failed");
-        return ESP_FAIL;
-    }
-    ESP_ERROR_CHECK( mpu6050_wake_up(mpu_handle) );
-    ESP_ERROR_CHECK( mpu6050_config(mpu_handle, ACCE_FS_8G, GYRO_FS_500DPS) );
+    // 3) MPU6050 via new API
+    mpu6050_config_t mpu_cfg = I2C_MPU6050_CONFIG_DEFAULT;
+    ESP_ERROR_CHECK( mpu6050_init(bus, &mpu_cfg, &mpu_handle) );
+    // optional reset/configure interrupts:
+    // ESP_ERROR_CHECK( mpu6050_reset(mpu_handle) );
+    // ESP_ERROR_CHECK( mpu6050_configure_interrupts(mpu_handle, &mpu_cfg) );
 
     ESP_LOGI(TAG, "Sensors initialized");
     return ESP_OK;
 }
+
 
 esp_err_t SensorManager::read(TelemetryData &out)
 {
     // timestamp
     out.time = xTaskGetTickCount() * portTICK_PERIOD_MS;
 
-    // --- read BMP390 ---
+    // --- BMP390: read temperature & pressure ---
     float temperature, pressure;
     esp_err_t err = bmp390_get_measurements(bmp_handle, &temperature, &pressure);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "BMP390 read failed (%d)", err);
+        ESP_LOGE(TAG, "BMP390 read failed: %d", err);
         return err;
     }
-    out.raw_altitude = 44330.0f * (1.0f - powf(pressure / SEA_LEVEL_PRESSURE, 0.190263f));
+    // barometric formula to meters
+    out.raw_altitude = 44330.0f *
+        (1.0f - powf(pressure / SEA_LEVEL_PRESSURE, 0.190263f));
 
-    // --- read MPU6050 ---
-    mpu6050_acce_value_t acce;
-    mpu6050_gyro_value_t gyro;
-    ESP_ERROR_CHECK( mpu6050_get_acce(mpu_handle, &acce) );
-    ESP_ERROR_CHECK( mpu6050_get_gyro(mpu_handle, &gyro) );
+    // --- MPU6050: read accelerometer & gyro ---
+    mpu6050_accel_data_axes_t acce;
+    mpu6050_gyro_data_axes_t  gyro;
+    float                     temp;
+    esp_err_t mpuErr = mpu6050_get_motion(mpu_handle, &gyro, &acce, &temp);
+    if (mpuErr != ESP_OK) {
+        ESP_LOGE(TAG, "MPU6050 read failed: %d", mpuErr);
+        return mpuErr;
+    }
 
-    float ax = acce.acce_x, ay = acce.acce_y, az = acce.acce_z;
+    // complementary filter for pitch
+    float ax = 0;//acce.acce_x;
+    float ay = 0;//acce.acce_y;
+    float az = 0;//acce.acce_z;
+    float gyro_x = 0;//gyro.gyro_x;
+
+
     float pitch_acc = atan2f(-ax, sqrtf(ay*ay + az*az)) * 180.0f / M_PI;
     static float pitch_gyro = pitch_acc;
     static uint32_t last = out.time;
     uint32_t now = out.time;
     float dt = (now - last) * 0.001f;
     last = now;
-    pitch_gyro += gyro.gyro_x * dt;
+    pitch_gyro += gyro_x * dt;
     out.estimated_pitch = 0.96f * pitch_gyro + 0.04f * pitch_acc;
 
-    // TODO: fill out yaw, roll, velocity, apogee…
+    // TODO: yaw, roll, velocity, apogee…
 
     return ESP_OK;
 }

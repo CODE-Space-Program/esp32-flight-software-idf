@@ -1,15 +1,11 @@
 #include "servos.h"
 #include <algorithm>
 
-Servos::Servos(i2c_port_t port,
-               gpio_num_t sda,
-               gpio_num_t scl,
+Servos::Servos(i2c_master_bus_handle_t bus,
                uint16_t dev_addr,
                uint16_t servoMinCount,
                uint16_t servoMaxCount)
-    : port(port)
-    , sda_io(sda)
-    , scl_io(scl)
+    : bus(bus)
     , addr(dev_addr)
     , minCount(servoMinCount)
     , maxCount(servoMaxCount)
@@ -20,12 +16,19 @@ Servos::~Servos() {
 }
 
 esp_err_t Servos::initialize() {
-    // create I2C handle for PCA9685
-    esp_err_t err = PCA9685::NewI2cHandle(port, sda_io, scl_io, addr, &_handle);
-    if (err != ESP_OK) return err;
 
-    // construct driver at 50 Hz (servo rate), no inversion
-    _pca = new PCA9685(_handle, nullptr, 50, false, 0);
+    // -- create a PCA device handle on your existing bus --
+    i2c_master_dev_handle_t pca_dev;
+    i2c_device_config_t dev_cfg = {
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+        .device_address  = addr,  // e.g. 0x40
+        .scl_speed_hz    = 100000,
+        // .flags = { .enable_internal_pullup = false },
+    };
+    ESP_ERROR_CHECK( i2c_master_bus_add_device(bus, &dev_cfg, &pca_dev) );
+
+    // -- now pass that to the PCA constructor (use same for reset if needed) --
+    _pca = new PCA9685(pca_dev, pca_dev, 50, false, 0);
     _pca->SwitchAllOff();
     _pca->Refresh();
     return ESP_OK;
@@ -49,5 +52,4 @@ void Servos::deinitialize() {
         delete _pca;
         _pca = nullptr;
     }
-    _handle = nullptr; // driver stays up for other uses
 }

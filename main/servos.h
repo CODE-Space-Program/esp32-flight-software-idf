@@ -6,9 +6,7 @@
 
 class Servos {
 public:
-    Servos(i2c_port_t port,
-           gpio_num_t sda,
-           gpio_num_t scl,
+    Servos(i2c_master_bus_handle_t bus,
            uint16_t dev_addr,
            uint16_t servoMinCount,
            uint16_t servoMaxCount);
@@ -20,12 +18,9 @@ public:
     void      deinitialize();
 
 private:
-    i2c_master_dev_handle_t _handle = nullptr;
-    PCA9685*                _pca    = nullptr;
+    PCA9685* _pca    = nullptr;
 
-    i2c_port_t port;
-    gpio_num_t sda_io;
-    gpio_num_t scl_io;
+    i2c_master_bus_handle_t bus = nullptr;
     uint16_t   addr;
     uint16_t   minCount, maxCount;
 };

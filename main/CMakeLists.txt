@@ -16,8 +16,8 @@ idf_component_register(
 
     i2cdev
     pca9685
-    mpu6050
     esp_bmp390
+    esp_mpu6050
 
     groundControl
 )
