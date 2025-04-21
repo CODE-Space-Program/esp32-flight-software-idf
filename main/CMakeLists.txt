@@ -4,11 +4,11 @@ idf_component_register(
     "wifi_helper.cpp"
     "tvc_test.cpp"
     "servos.cpp"
+    "sensors.cpp"
+    "pyro.h"
   INCLUDE_DIRS
     "."
   REQUIRES
-    groundControl
-    
     esp_event
     esp_netif
     esp_wifi
@@ -16,4 +16,8 @@ idf_component_register(
 
     i2cdev
     pca9685
+    mpu6050
+    esp_bmp390
+
+    groundControl
 )

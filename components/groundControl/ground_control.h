@@ -59,9 +59,6 @@ private:
     std::vector<Listener> listeners;
     std::vector<cJSON*> telemetryBuffer;
 
-    TimerHandle_t requestTimer;
-    static void timerCb(TimerHandle_t t);
-
     int    fetchFlightId();
     void   makeRequest();
     void   processResponse(const std::string &payload);
@@ -70,4 +67,11 @@ private:
     void   checkAndSendTelemetry();
 
     static constexpr TickType_t POLL_INTERVAL = pdMS_TO_TICKS(1000);
+
+    TaskHandle_t requestTaskHandle = nullptr;
+    TimerHandle_t requestTimer;
+    SemaphoreHandle_t requestSemaphore  = nullptr;
+
+    static void timerCb(TimerHandle_t t);
+    static void requestTaskFn(void *arg);
 };

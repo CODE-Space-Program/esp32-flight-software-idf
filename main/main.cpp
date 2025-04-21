@@ -2,12 +2,15 @@
 #include <nvs_flash.h>
 #include <esp_netif.h>
 #include <esp_event.h>
+#include "esp_wifi.h"
 
 #include "wifi_helper.h"
 #include "tvc_test.h"
 #include "servos.h"
 
 #include "driver/gpio.h"
+
+#include "sensors.h"
 
 static constexpr gpio_num_t LED_GPIO = GPIO_NUM_2;
 
@@ -68,7 +71,13 @@ extern "C" void app_main()
 
     led_off();
 
+    // either nvs_flash_erase() or esp_wifi_set_storage() seems to fix an issue where every wifi connection takes longer than the previous one,
+    // due to repeatedly failing with "wifi: Disconnected-reconnecting". eventually, this leads to not being able to connect at all.
+    // this issue has been observed on the "CODE University" WiFi. For Ava's mobile hotspot, it always connects instantly.
+    nvs_flash_erase();
     nvs_flash_init();
+    esp_wifi_set_storage(WIFI_STORAGE_RAM);
+
     esp_netif_init();
     esp_event_loop_create_default();
 
@@ -77,17 +86,24 @@ extern "C" void app_main()
     GroundControl gc("https://spaceprogram.bolls.dev");
     TvcTest tvcTest;
 
+    SensorManager sensorManager;
+    sensorManager.init((i2c_port_t) 0, (gpio_num_t) 21, (gpio_num_t) 22);
+    sensorManager.read(mockTelemetry);
+
     gc.connect();
 
-    gc.sendTelemetry(mockTelemetry);
+    TickType_t lastTelemetryTick = xTaskGetTickCount();
 
     ESP_LOGI(TAG, "Sent telemetry");
 
-    Servos servos((i2c_port_t) 0, (gpio_num_t) 0, (gpio_num_t) 0, 0, 110, 480);
+    Servos servos((i2c_port_t) 0, (gpio_num_t) 21, (gpio_num_t) 22, 0x40, 110, 480);
 
     servos.initialize();
 
     ESP_LOGI(TAG, "Initialized servos");
+
+    servos.move(0, 90);
+    servos.move(1, 90);
 
     gc.subscribe([&](const std::string &cmd, cJSON *args) {
         if (args) {
@@ -138,6 +154,12 @@ extern "C" void app_main()
     });
 
     while (true) {
+        TickType_t now = xTaskGetTickCount();
+        if (now - lastTelemetryTick >= pdMS_TO_TICKS(100)) {
+            gc.sendTelemetry(mockTelemetry);
+            lastTelemetryTick = now;
+        }
+
         if (tvcTest.isInProgress()) {
             ESP_LOGI(TAG, "Tvc test in progress");
 
@@ -146,8 +168,11 @@ extern "C" void app_main()
             if (tvcTestTick % 100 == 0) {
                 float newPitch = tvcTest.getNewPitch();
                 float newYaw   = tvcTest.getNewYaw();
-                servos.move(0, newPitch);
-                servos.move(1, newYaw);
+
+                ESP_LOGI(TAG, "  Pitch: %.1f°, Yaw: %.1f°", newPitch, newYaw);
+
+                servos.move(0, newPitch - 90);
+                servos.move(1, newYaw - 90);
             }
             // 1ms delay to simulate Arduino's fast loop rate
             vTaskDelay(pdMS_TO_TICKS(1));
