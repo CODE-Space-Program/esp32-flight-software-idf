@@ -42,4 +42,4 @@ jobs:
           eval "$HOME/esp-idf/tools/idf_tools.py export"
 
       - name: Build and run unit tests
-        run: sh run-tests.sh
+        run: . $HOME/esp-idf/export.sh && sh run-tests.sh
