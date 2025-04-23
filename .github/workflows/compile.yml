@@ -1,5 +1,8 @@
 name: Compile for ESP32
 
+permissions:
+  contents: write # allow GITHUB_TOKEN to create releases
+
 on:
   push:
     branches:
@@ -39,15 +42,26 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ github.sha }}
           release_name: Release-${{ github.run_number }}
           draft: false
           prerelease: false
 
-      - name: Upload release asset
+      - name: Upload firmware ZIP
         uses: actions/upload-release-asset@v1
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: firmware.zip
           asset_name: esp32-firmware.zip
           asset_content_type: application/zip
+
+      - name: Upload firmware BIN
+        uses: actions/upload-release-asset@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/esp32-flight-software-v2.bin
+          asset_name: esp32-firmware.bin
+          asset_content_type: application/octet-stream
