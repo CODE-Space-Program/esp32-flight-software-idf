@@ -25,6 +25,13 @@ flash the compiled code onto the flight computer:
 
 ## TODO: debugging with OpenOCD and GDB
 
-## TODO: run unit tets
+## unit test setup
+
+TODO: which prerequisites to install to be able to run unit tests locally
+
+we use the QEMU emulator to run cross-target unit tests, meaning we can test functionality like the kalman filter in isolation without having to flash a physical ESP32 chip.
+run the tests on your machine like this: `$ sh run-tests.sh`
+
+the `/tests` directory is a fork of [ESP-IDF's built-in unit-test-app](https://github.com/espressif/esp-idf/blob/master/tools/unit-test-app/README.md)
 
 ## TODO: debug vs production build
