@@ -74,11 +74,11 @@ extern "C" void app_main()
 
     led_off();
 
-    // either nvs_flash_erase() or esp_wifi_set_storage() seems to fix an issue where every wifi connection takes longer than the previous one,
+    nvs_flash_init();
+
+    // don't carry over wifi connection info between reboots. this seems to fix an issue where every wifi connection takes longer than the previous one,
     // due to repeatedly failing with "wifi: Disconnected-reconnecting". eventually, this leads to not being able to connect at all.
     // this issue has been observed on the "CODE University" WiFi. For Ava's mobile hotspot, it always connects instantly.
-    nvs_flash_erase();
-    nvs_flash_init();
     esp_wifi_set_storage(WIFI_STORAGE_RAM);
 
     esp_netif_init();
