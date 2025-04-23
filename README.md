@@ -35,3 +35,12 @@ run the tests on your machine like this: `$ sh run-tests.sh`
 the `/tests` directory is a fork of [ESP-IDF's built-in unit-test-app](https://github.com/espressif/esp-idf/blob/master/tools/unit-test-app/README.md)
 
 ## TODO: debug vs production build
+
+https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/unit-tests.html
+
+## Linting and IntelliSense setup for VS Code
+
+1. install the `ms-vscode.cpptools` and `espressif.esp-idf-extension` extensions
+2. press command + shift + p, type `> ESP-IDF: Add VS CODE Configuration Folder`, and press enter
+3. press command + shift + p, type `> C/C++ Reset IntelliSense Database`, and press enter
+4. press command + shift + p, type `> Developer: Reload Window`, and press enter

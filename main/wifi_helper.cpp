@@ -6,29 +6,32 @@
 #include "esp_event.h"
 #include "esp_wifi.h"
 
-static const char* TAG = "wifi";
+static const char *TAG = "wifi";
 static EventGroupHandle_t wifi_event_group;
-static const int CONNECTED_BIT  = BIT0;
+static const int CONNECTED_BIT = BIT0;
 
 #define WIFI_SSID "CODE University"
 #define WIFI_PASS "CODE!University"
 
 // Event handler to catch start, disconnect & got‑IP events
-static void wifi_event_handler(void* arg,
+static void wifi_event_handler(void *arg,
                                esp_event_base_t event_base,
                                int32_t event_id,
-                               void* event_data)
+                               void *event_data)
 {
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
+    {
         esp_wifi_connect();
     }
-    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
+    {
         ESP_LOGW(TAG, "Disconnected—reconnecting");
         esp_wifi_connect();
         xEventGroupClearBits(wifi_event_group, CONNECTED_BIT);
     }
-    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
-        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
+    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
+    {
+        ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         ESP_LOGI(TAG, "Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
         xEventGroupSetBits(wifi_event_group, CONNECTED_BIT);
     }
@@ -53,8 +56,8 @@ void connectWifi()
 
     // 4) set SSID/password & start
     wifi_config_t wifi_cfg = {};
-    strncpy((char*)wifi_cfg.sta.ssid,     WIFI_SSID, sizeof(wifi_cfg.sta.ssid)-1);
-    strncpy((char*)wifi_cfg.sta.password, WIFI_PASS, sizeof(wifi_cfg.sta.password)-1);
+    strncpy((char *)wifi_cfg.sta.ssid, WIFI_SSID, sizeof(wifi_cfg.sta.ssid) - 1);
+    strncpy((char *)wifi_cfg.sta.password, WIFI_PASS, sizeof(wifi_cfg.sta.password) - 1);
     esp_wifi_set_mode(WIFI_MODE_STA);
     esp_wifi_set_config(WIFI_IF_STA, &wifi_cfg);
     esp_wifi_start();

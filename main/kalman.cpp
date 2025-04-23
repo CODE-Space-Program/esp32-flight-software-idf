@@ -1,31 +1,39 @@
 #include "kalman.h"
 
 KalmanFilter::KalmanFilter(float init_height, float init_velocity, float dt)
-: ekf(0,0), dt_(dt)
+    : ekf(0, 0), dt_(dt)
 {
     // Initial state
     x_[0] = init_height;
     x_[1] = init_velocity;
 
     // State transition matrix A
-    A[0][0] = 1;    A[0][1] = dt_;
-    A[1][0] = 0;    A[1][1] = 1;
+    A[0][0] = 1;
+    A[0][1] = dt_;
+    A[1][0] = 0;
+    A[1][1] = 1;
     // Control matrix B
     B[0] = 0.5f * dt_ * dt_;
     B[1] = dt_;
     // Measurement matrix H
-    H[0][0] = 1;    H[0][1] = 0;
+    H[0][0] = 1;
+    H[0][1] = 0;
     // Process noise Q
-    Q[0][0] = 0.001f; Q[0][1] = 0;
-    Q[1][0] = 0;      Q[1][1] = 0.0005f;
+    Q[0][0] = 0.001f;
+    Q[0][1] = 0;
+    Q[1][0] = 0;
+    Q[1][1] = 0.0005f;
     // Measurement noise R
     R[0][0] = 0.02f;
     // Initial covariance P
-    P[0][0] = 1; P[0][1] = 0;
-    P[1][0] = 0; P[1][1] = 1;
+    P[0][0] = 1;
+    P[0][1] = 0;
+    P[1][0] = 0;
+    P[1][1] = 1;
 }
 
-void KalmanFilter::predict(float acc) {
+void KalmanFilter::predict(float acc)
+{
     // Predict state
     float x_pred[2];
     x_pred[0] = A[0][0] * x_[0] + A[0][1] * x_[1] + B[0] * acc;
@@ -45,11 +53,14 @@ void KalmanFilter::predict(float acc) {
     // Commit
     x_[0] = x_pred[0];
     x_[1] = x_pred[1];
-    P[0][0] = P_pred[0][0]; P[0][1] = P_pred[0][1];
-    P[1][0] = P_pred[1][0]; P[1][1] = P_pred[1][1];
+    P[0][0] = P_pred[0][0];
+    P[0][1] = P_pred[0][1];
+    P[1][0] = P_pred[1][0];
+    P[1][1] = P_pred[1][1];
 }
 
-void KalmanFilter::update(float height_measured) {
+void KalmanFilter::update(float height_measured)
+{
     // Innovation
     float y = height_measured - (H[0][0] * x_[0] + H[0][1] * x_[1]);
     // Innovation covariance
@@ -70,10 +81,12 @@ void KalmanFilter::update(float height_measured) {
     P[1][1] -= K[1] * H[0][1] * P[1][1];
 }
 
-float KalmanFilter::get_estimated_height() const {
+float KalmanFilter::get_estimated_height() const
+{
     return x_[0];
 }
 
-float KalmanFilter::get_estimated_velocity() const {
+float KalmanFilter::get_estimated_velocity() const
+{
     return x_[1];
 }

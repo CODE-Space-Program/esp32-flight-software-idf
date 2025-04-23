@@ -14,47 +14,49 @@
 
 static constexpr gpio_num_t LED_GPIO = GPIO_NUM_2;
 
-void init_led() {
+void init_led()
+{
     gpio_config_t io_conf = {};
-    io_conf.intr_type    = GPIO_INTR_DISABLE;
-    io_conf.mode         = GPIO_MODE_OUTPUT;
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_OUTPUT;
     io_conf.pin_bit_mask = (1ULL << LED_GPIO);
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-    io_conf.pull_up_en   = GPIO_PULLUP_DISABLE;
+    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     gpio_config(&io_conf);
 
     gpio_set_level(LED_GPIO, 0);
 }
 
-void led_on()  { gpio_set_level(LED_GPIO, 1); }
+void led_on() { gpio_set_level(LED_GPIO, 1); }
 
 void led_off() { gpio_set_level(LED_GPIO, 0); }
 
-void led_toggle() {
+void led_toggle()
+{
     int level = gpio_get_level(LED_GPIO);
     gpio_set_level(LED_GPIO, !level);
 }
 
-static const char* TAG = "app_main";
+static const char *TAG = "app_main";
 
 static int tvcTestTick = 0;
 
-static TelemetryData mockTelemetry {
-    "Ready",      // state
-    12345678L,        // time (ms)
-    1013.25f,         // pressure (mbar)
-    22.5f,            // temperature (°C)
-    150.0f,           // raw_altitude
-    145.0f,           // estimated_altitude
-    5.0f,             // velocity
-    2.5f,             // estimated_pitch
-    -1.0f,            // estimated_yaw
-    0.0f,             // estimated_roll
-    160.0f,           // apogee
-    '\0',             // null_terminator (uses default anyway)
-    90.0f,            // nominalYawServoDegrees
-    45.0f,            // nominalPitchServoDegrees
-    false             // servosLocked
+static TelemetryData mockTelemetry{
+    "Ready",   // state
+    12345678L, // time (ms)
+    1013.25f,  // pressure (mbar)
+    22.5f,     // temperature (°C)
+    150.0f,    // raw_altitude
+    145.0f,    // estimated_altitude
+    5.0f,      // velocity
+    2.5f,      // estimated_pitch
+    -1.0f,     // estimated_yaw
+    0.0f,      // estimated_roll
+    160.0f,    // apogee
+    '\0',      // null_terminator (uses default anyway)
+    90.0f,     // nominalYawServoDegrees
+    45.0f,     // nominalPitchServoDegrees
+    false      // servosLocked
 };
 
 static i2c_master_bus_handle_t bus = nullptr;
@@ -90,14 +92,13 @@ extern "C" void app_main()
     TvcTest tvcTest;
 
     i2c_master_bus_config_t bus_cfg = {
-        .i2c_port = (i2c_port_t) 0,
-        .sda_io_num = (gpio_num_t) 21,
-        .scl_io_num = (gpio_num_t) 22,
+        .i2c_port = (i2c_port_t)0,
+        .sda_io_num = (gpio_num_t)21,
+        .scl_io_num = (gpio_num_t)22,
         .clk_source = I2C_CLK_SRC_DEFAULT,
     };
-    ESP_ERROR_CHECK( i2c_new_master_bus(&bus_cfg, &bus) );
+    ESP_ERROR_CHECK(i2c_new_master_bus(&bus_cfg, &bus));
 
-    
     SensorManager *sensors = new SensorManager;
     sensors->init(bus);
     sensors->read(mockTelemetry);
@@ -117,7 +118,8 @@ extern "C" void app_main()
     servos.move(0, 90);
     servos.move(1, 90);
 
-    gc.subscribe([&](const std::string &cmd, cJSON *args) {
+    gc.subscribe([&](const std::string &cmd, cJSON *args)
+                 {
         if (args) {
             char *args_str = cJSON_PrintUnformatted(args);
             if (args_str) {
@@ -162,24 +164,27 @@ extern "C" void app_main()
         }
         else {
             ESP_LOGI(TAG, "Unhandled command: %s", cmd.c_str());
-        }
-    });
+        } });
 
-    while (true) {
+    while (true)
+    {
         TickType_t now = xTaskGetTickCount();
-        if (now - lastTelemetryTick >= pdMS_TO_TICKS(100)) {
+        if (now - lastTelemetryTick >= pdMS_TO_TICKS(100))
+        {
             gc.sendTelemetry(mockTelemetry);
             lastTelemetryTick = now;
         }
 
-        if (tvcTest.isInProgress()) {
+        if (tvcTest.isInProgress())
+        {
             ESP_LOGI(TAG, "Tvc test in progress");
 
             tvcTestTick++;
 
-            if (tvcTestTick % 100 == 0) {
+            if (tvcTestTick % 100 == 0)
+            {
                 float newPitch = tvcTest.getNewPitch();
-                float newYaw   = tvcTest.getNewYaw();
+                float newYaw = tvcTest.getNewYaw();
 
                 ESP_LOGI(TAG, "  Pitch: %.1f°, Yaw: %.1f°", newPitch, newYaw);
 
