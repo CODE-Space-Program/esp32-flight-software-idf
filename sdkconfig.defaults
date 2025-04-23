@@ -1,1 +1,8 @@
+# bc we're larger than 1.2MB lol
 CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y
+
+# enable the built-in CA bundle
+CONFIG_MBEDTLS_CERTIFICATE_BUNDLE=y
+
+# select the full default bundle
+CONFIG_MBEDTLS_CERTIFICATE_BUNDLE_DEFAULT_FULL=y

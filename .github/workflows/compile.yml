@@ -41,8 +41,9 @@ jobs:
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ github.sha }}
           release_name: Release-${{ github.run_number }}
           draft: false
@@ -50,8 +51,9 @@ jobs:
 
       - name: Upload firmware ZIP
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: firmware.zip
           asset_name: esp32-firmware.zip
@@ -59,8 +61,9 @@ jobs:
 
       - name: Upload firmware BIN
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: build/esp32-flight-software-v2.bin
           asset_name: esp32-firmware.bin
