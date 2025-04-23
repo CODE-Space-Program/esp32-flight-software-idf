@@ -28,3 +28,26 @@ jobs:
       - name: Build project
         run: |
           idf.py fullclean build
+
+      - name: Archive binaries
+        run: |
+          mkdir -p release
+          cp build/*.bin release/
+          zip -j firmware.zip release/*.bin
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.sha }}
+          release_name: Release-${{ github.run_number }}
+          draft: false
+          prerelease: false
+
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: firmware.zip
+          asset_name: esp32-firmware.zip
+          asset_content_type: application/zip

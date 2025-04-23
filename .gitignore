@@ -45,3 +45,5 @@ __pycache__/
 
 # Wi-Fi config (if used)
 wifi_config.json
+
+managed_components/
