@@ -1,3 +1,0 @@
-dependencies:
-  pca9685:
-    override_path: "../../../"
