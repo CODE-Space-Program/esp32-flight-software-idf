@@ -22,3 +22,9 @@ the port will look something like `/dev/ttyUSB0`.
 
 flash the compiled code onto the flight computer:
 `$ idf.py -p PORT flash monitor` - replace PORT with the port you got from the previous step
+
+## TODO: debugging with OpenOCD and GDB
+
+## TODO: run unit tets
+
+## TODO: debug vs production build

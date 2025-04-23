@@ -1,5 +1,8 @@
+.pytest_cache
+
 # ESP-IDF build output
 /build/
+/tests/build/
 
 # Build binaries and intermediate files
 *.elf

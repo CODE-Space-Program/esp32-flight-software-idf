@@ -58,6 +58,7 @@ static TelemetryData mockTelemetry {
 };
 
 static i2c_master_bus_handle_t bus = nullptr;
+static SensorManager sensors;
 
 extern "C" void app_main()
 {
@@ -96,9 +97,10 @@ extern "C" void app_main()
     };
     ESP_ERROR_CHECK( i2c_new_master_bus(&bus_cfg, &bus) );
 
-    SensorManager sensorManager;
-    sensorManager.init(bus);
-    sensorManager.read(mockTelemetry);
+    
+    SensorManager *sensors = new SensorManager;
+    sensors->init(bus);
+    sensors->read(mockTelemetry);
 
     gc.connect();
 

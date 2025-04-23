@@ -9,3 +9,4 @@ dependencies:
   supcik/pca9685: "*"
   k0i05/esp_bmp390: "*"
   k0i05/esp_mpu6050: ^1.2.1
+  espressif/esp-dsp: "*"

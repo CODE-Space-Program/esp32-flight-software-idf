@@ -6,6 +6,7 @@ idf_component_register(
     "servos.cpp"
     "sensors.cpp"
     "pyro.h"
+    "kalman.cpp"
   INCLUDE_DIRS
     "."
   REQUIRES
@@ -18,6 +19,7 @@ idf_component_register(
     pca9685
     esp_bmp390
     esp_mpu6050
+    esp-dsp
 
     groundControl
 )
