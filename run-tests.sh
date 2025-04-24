@@ -2,7 +2,7 @@
 
 cd tests
 
-idf.py -T groundControl set-target esp32 build
+idf.py -T groundControl -T storage set-target esp32 build
 
 pytest test.py \
             --target esp32 \
