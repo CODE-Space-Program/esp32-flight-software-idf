@@ -13,8 +13,9 @@
 #include "esp_log.h"           // logging
 #include "esp_event.h"         // event loop (required by the client)
 #include "esp_netif.h"         // network interface
+#include "datapoint.h"
 
-struct TelemetryData
+/*struct TelemetryData
 {
     std::string state = "Ready";
 
@@ -38,7 +39,10 @@ struct TelemetryData
 
     bool servosLocked = true;
 
-};
+    float accel_data[3];
+    float gyro_data[3];
+
+};*/
 
 class GroundControl {
 public:
@@ -49,7 +53,7 @@ public:
 
     void subscribe(Listener listener);
     void connect();
-    void sendTelemetry(const TelemetryData &data);
+    void sendTelemetry(const DataPoint &datapoint);
 
     bool isConnecting = false;
     bool isConnected = false;
