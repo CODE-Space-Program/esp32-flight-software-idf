@@ -12,27 +12,23 @@ dependencies:
   eil/i2cdev:
     component_hash: 320f24484a1678083133ca19c195ea58740c188dd590626980b1cf2032539aaa
     dependencies:
-    - name: idf
-      require: private
-      version: '>=4.3'
     - name: eil/esp_idf_lib_helpers
       registry_url: https://components.espressif.com
       require: private
       version: '>=1.2.1'
+    - name: idf
+      require: private
+      version: '>=4.3'
     source:
       registry_url: https://components.espressif.com/
       type: service
     version: 1.5.1
   espressif/esp-dsp:
-    component_hash: f8248fde737aeb43f746cd7326d6cee20f6460506938435bc555ca5bed46edbc
-    dependencies:
-    - name: idf
-      require: private
-      version: '>=4.2'
+    dependencies: []
     source:
-      registry_url: https://components.espressif.com/
-      type: service
-    version: 1.6.1
+      path: /home/alex/Projects/code_space_program/esp32-flight-software-idf/components/espressif__esp-dsp
+      type: local
+    version: 1.6.2
   idf:
     source:
       type: idf
@@ -94,9 +90,10 @@ dependencies:
 direct_dependencies:
 - eil/i2cdev
 - espressif/esp-dsp
+- idf
 - k0i05/esp_bmp390
 - k0i05/esp_mpu6050
 - supcik/pca9685
-manifest_hash: d6be16b7edb6735b15af393f780d70a701d4ec513be7602627b2bf0774150666
+manifest_hash: 0f83521391be4fee2613b20cfd7bdf83ac193db85505fec15f2bfae9179e78bc
 target: esp32
 version: 2.0.0

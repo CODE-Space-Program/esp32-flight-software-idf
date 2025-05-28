@@ -5,8 +5,12 @@ idf_component_register(
     "tvc_test.cpp"
     "servos.cpp"
     "sensors.cpp"
-    "pyro.h"
+    "pyro.cpp"
     "kalman.cpp"
+    "tvc.cpp"
+    "flight_controller.cpp"
+    "datapoint.cpp"
+    "PID.cpp"
   INCLUDE_DIRS
     "."
   REQUIRES
@@ -22,4 +26,5 @@ idf_component_register(
     esp-dsp
 
     groundControl
+    SimpleKalmanFilter
 )

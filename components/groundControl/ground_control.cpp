@@ -194,24 +194,24 @@ void GroundControl::emitEvent(const std::string &cmd, cJSON *args)
     }
 }
 
-void GroundControl::sendTelemetry(const TelemetryData &d)
+void GroundControl::sendTelemetry(const DataPoint &datapoint)
 {
     long now_ms = xTaskGetTickCount() * portTICK_PERIOD_MS;
     cJSON *entry = cJSON_CreateObject();
-    cJSON_AddNumberToObject(entry, "raw_altitude", d.raw_altitude);
-    cJSON_AddNumberToObject(entry, "altitude", d.estimated_altitude);
-    cJSON_AddNumberToObject(entry, "velocity", d.velocity);
-    cJSON_AddNumberToObject(entry, "pitch", d.estimated_pitch);
-    cJSON_AddNumberToObject(entry, "yaw", d.estimated_yaw);
-    cJSON_AddNumberToObject(entry, "roll", d.estimated_roll);
-    cJSON_AddNumberToObject(entry, "temperature", d.temperature);
-    cJSON_AddNumberToObject(entry, "pressure", d.pressure);
-    cJSON_AddNumberToObject(entry, "time", d.time);
-    cJSON_AddNumberToObject(entry, "apogee", d.apogee);
-    cJSON_AddStringToObject(entry, "state", d.state.c_str());
-    cJSON_AddNumberToObject(entry, "nominalPitchServoDegrees", d.nominalPitchServoDegrees);
-    cJSON_AddNumberToObject(entry, "nominalYawServoDegrees", d.nominalYawServoDegrees);
-    cJSON_AddBoolToObject(entry, "servosLocked", d.servosLocked);
+    cJSON_AddNumberToObject(entry, "raw_altitude", datapoint.raw_altitude);
+    cJSON_AddNumberToObject(entry, "altitude", datapoint.estimated_altitude);
+    cJSON_AddNumberToObject(entry, "velocity", datapoint.velocity);
+    cJSON_AddNumberToObject(entry, "pitch", datapoint.estimated_pitch);
+    cJSON_AddNumberToObject(entry, "yaw", datapoint.estimated_yaw);
+    //cJSON_AddNumberToObject(entry, "roll", d.estimated_roll);
+    cJSON_AddNumberToObject(entry, "temperature", datapoint.temperature);
+    cJSON_AddNumberToObject(entry, "pressure", datapoint.pressure);
+    //cJSON_AddNumberToObject(entry, "time", datapoint.time);
+    cJSON_AddNumberToObject(entry, "apogee", datapoint.apogee);
+    //cJSON_AddStringToObject(entry, "state", d.state.c_str());
+    //cJSON_AddNumberToObject(entry, "nominalPitchServoDegrees", d.nominalPitchServoDegrees);
+    //cJSON_AddNumberToObject(entry, "nominalYawServoDegrees", d.nominalYawServoDegrees);
+    //cJSON_AddBoolToObject(entry, "servosLocked", d.servosLocked);
     cJSON_AddNumberToObject(entry, "sent", now_ms);
     telemetryBuffer.push_back(entry);
     checkAndSendTelemetry();

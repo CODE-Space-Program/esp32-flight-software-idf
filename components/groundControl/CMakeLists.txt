@@ -11,4 +11,5 @@ idf_component_register(
         esp_netif       # networking
         nvs_flash       # non‑volatile storage (often needed for Wi‑Fi creds)
         esp_timer
+        main
 )
