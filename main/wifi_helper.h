@@ -1,3 +1,4 @@
 #pragma once
 
-void connectWifi();
+esp_err_t connectWifi();
+void cleanupWifi();
